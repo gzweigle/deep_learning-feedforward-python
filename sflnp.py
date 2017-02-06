@@ -4,14 +4,6 @@
 # Want to teach myself Python.
 # So writing this simple network as a self-teaching tool.
 #
-# To Do:
-#           Regularization
-#           Use MNIST dataset
-#           Hyperparameter selection
-#           Minibatch
-#           Display intermediate calculations
-#           Overall, better design and better phython code :)
-#
 
 # External modules.
 import numpy as np
