@@ -3,6 +3,7 @@
 # Most of my algorithm development is with Matlab.
 # Writing this simple network to learn and get better at Python.
 #
+#
 # To Do:
 #           Unit test framework.
 #           Add processing at minibatch level.    
