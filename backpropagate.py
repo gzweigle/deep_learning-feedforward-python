@@ -13,6 +13,15 @@ import nonlinearities as nl
 def backpropagate(zval, A3, A4, y):
     
     # Calculate the initial error, using cross entropy.
+    error = np.empty((len(y),1,))
+    for i in range(len(zval[2])):
+        # Catch any possible inf cases.
+        if zval[2][i] == 0:
+            error[i] = 1000000
+        elif zval[2][i] == 1:
+            error[i] = -1000000
+        else:
+            error[i] = -0.5 * (y[i]/zval[2][i] - (1-y[i])/(1-zval[2][i]))
 
     # Get the first error term
     d4 = nl.sigmoid_derivative(zval[2])
