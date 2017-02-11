@@ -4,6 +4,14 @@
 # Want to teach myself Python.
 # So writing this simple network as a self-teaching tool.
 #
+# To Do:
+#           Unit test framework.
+#           Add processing at minibatch level.    
+#           Add regularization - probably weight decay and dropout.
+#           Remove hardcoding of hyperparameters (especially depth).
+#           Connect to a real dataset, most likely MNIST.
+#           Lots of refactoring.
+#
 
 # External modules.
 import numpy as np

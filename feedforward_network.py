@@ -1,6 +1,7 @@
 # Feedforward network
 #
 # To Do: Remove hardcoding of the depth.
+#        Passing 7 parameters isn't clean.
 #
 
 # External modules.

@@ -2,6 +2,9 @@
 #
 # To Do: Doesn't yet work for minibatch > 1.
 #        Need to add regularization, probably with dropout.
+#        Refactoring:
+#           Final_out isn't a good way to return values.
+#           Passing in too many values.
 #
 
 # External modules.
