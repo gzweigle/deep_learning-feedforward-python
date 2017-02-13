@@ -1,7 +1,7 @@
 # Backpropagation stage
 #
 # To Do: Don't hardcode the network depth.
-#        Passing 4 parameters isn't clean.
+#        Passing 6 parameters isn't clean.
 #
 
 # External modules.
@@ -11,37 +11,49 @@ import numpy as np
 import nonlinearities as nl
 
 
-def backpropagate(zval, A3, A4, y):
+def backpropagate(z2, z3, z4, A3, A4, target_values):
     
     # Calculate the initial error, using cross entropy.
-    error = np.empty((len(y),1,))
-    for i in range(len(zval[2])):
-        # Catch any possible inf cases.
-        if zval[2][i] == 0:
-            error[i] = 1000000
-        elif zval[2][i] == 1:
-            error[i] = -1000000
-        else:
-            # The normal path.
-            error[i] = -0.5 * (y[i]/zval[2][i] - (1-y[i])/(1-zval[2][i]))
+    error_value = cross_entropy(target_values, z4)
 
-    # Calculate the first error term.
-    d4 = nl.sigmoid_derivative(zval[2])
+    # Initial backpropagation, from the output towards the previous network stage.
+    d4 = nl.sigmoid_derivative(z4)
     for i in range(len(d4)):
-        d4[i] = error[i] * d4[i]
+        d4[i] = error_value[i] * d4[i]
 
-    # Back propagate the error from the output stage N to stage N-1.
-    A4 = np.transpose(A4)
-    d3 = np.dot(A4,d4)
-    z3n = nl.nonlinearity_derivative(zval[1])
-    for i in range(len(d3)):
-        d3[i] = d3[i] * z3n[i]
-    
-    # Back propagate the error again, to stage N-2.
-    A3 = np.transpose(A3)
-    d2 = np.dot(A3,d3)
-    z2n = nl.nonlinearity_derivative(zval[0])
-    for i in range(len(d2)):
-        d2[i] = d2[i] * z2n[i]
+    # Backpropagate the error to the input.
+    d3 = backpropagate_onestage(A4, d4, z3)
+    d2 = backpropagate_onestage(A3, d3, z2)
         
     return d2, d3, d4
+
+
+def backpropagate_onestage(A, d, z):
+    
+    A = np.transpose(A)
+    d_out = np.dot(A,d)
+    z_derivative = nl.rlu_derivative(z)
+    for i in range(len(d_out)):
+        d_out[i] = d_out[i] * z_derivative[i]
+    return d_out
+
+
+def cross_entropy(target_values, output_values):
+
+    LARGE_ERROR = 100000
+
+    error_value = np.empty((len(target_values),1,))
+    for i in range(len(output_values)):
+
+        # First, catch any possible infinity cases.
+        if output_values[i] == 0:
+            error_value[i] = LARGE_ERROR
+        elif output_values[i] == 1:
+            error_value[i] = -LARGE_ERROR
+
+        else:
+            # The normal path.
+            error_value[i] = -0.5 * (target_values[i]/output_values[i] - 
+                                    (1-target_values[i])/(1-output_values[i]))
+
+    return error_value

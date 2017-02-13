@@ -1,39 +1,44 @@
 # Gradient Descent stage
 #
-# To Do: Need to add averaging over the minibatch
-#        Refactoring:
-#           Surely there is a way to make this code more efficient in Python
-#           Don't hardcode eta
-#           Don't pass so many values.
+# To Do: Surely there is a way to make this code more efficient in Python
+#        Don't hardcode eta
+#        Don't pass so many values.
 #
 
 # External modules.
 import numpy as np
 
 
-def gradient_descent(inval, zval, dval, A2, A3, A4, b2, b3, b4):
+def gradient_descent(ina, z2a, z3a, d2a, d3a, d4a, A2, A3, A4, b2, b3, b4, minibatch_size):
 
-    eta = .05
+    eta = .1
+    decay = 1
 
-    for n in range(len(A2)):
-        for m in range(len(np.transpose(A2))):
-            A2[n,m] = A2[n,m] - eta * dval[0][n]*inval[m]
+    gradient_matrix(A2, d2a, ina, minibatch_size, eta, decay)
+    gradient_matrix(A3, d3a, z2a, minibatch_size, eta, decay)
+    gradient_matrix(A4, d4a, z3a, minibatch_size, eta, decay)
 
-    for n in range(len(A2)):
-        b2[n] = b2[n] - eta * dval[0][n]
-    
-    for n in range(len(A3)):
-        for m in range(len(np.transpose(A3))):
-            A3[n,m] = A3[n,m] - eta * dval[1][n]*zval[0][m]
+    gradient_vector(A2, b2, d2a, minibatch_size, eta, decay)
+    gradient_vector(A3, b3, d3a, minibatch_size, eta, decay)
+    gradient_vector(A4, b4, d4a, minibatch_size, eta, decay)
 
-    for n in range(len(A3)):
-        b3[n] = b3[n] - eta * dval[1][n]
+
+def gradient_matrix(A, d, z, ms, eta, decay):
             
-    for n in range(len(A4)):
-        for m in range(len(np.transpose(A4))):
-            A4[n,m] = A4[n,m] - eta * dval[2][n]*zval[1][m]
+    for n in range(len(A)):
+        for m in range(len(np.transpose(A))):
+            avg = 0
+            for j in range(ms):
+                avg = avg + d[j][n] * z[j][m]
+            avg = avg / ms
+            A[n,m] = decay * A[n,m] - eta * avg
 
-    for n in range(len(A4)):
-        b4[n] = b4[n] - eta * dval[2][n]
-        
-    return A2, A3, A4, b2, b3, b4
+
+def gradient_vector(A, b, d, ms, eta, decay):
+
+    for n in range(len(A)):
+        avg = 0
+        for j in range(ms):
+            avg = avg + d[j][n]
+        avg = avg / ms
+        b[n] = decay * b[n] - eta * avg
