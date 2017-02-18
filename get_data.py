@@ -50,10 +50,10 @@ def get_data():
     # Build lots of instances of each exact input data, each with noise added.
     for which_target in range(target_data_width):
 
-        train_input, train_target = build_noisy_data_instances(train_instances, exact_input[which_target][:], \
+        build_noisy_data_instances(train_instances, exact_input[which_target][:], \
         train_input, train_target, exact_target[which_target][:], which_target, noise_scale)
 
-        test_input, test_target = build_noisy_data_instances(test_instances, exact_input[which_target][:], \
+        build_noisy_data_instances(test_instances, exact_input[which_target][:], \
         test_input, test_target, exact_target[which_target][:], which_target, noise_scale)
 
     return train_input, train_target, test_input, test_target, input_data_width, target_data_width
@@ -69,5 +69,3 @@ def build_noisy_data_instances(num_instances, exact_input, noisy_input, noisy_ta
             (exact_input + (2*np.random.random((1,data_width))-1)*noise_scale)
 
         noisy_target[i + which_target * num_instances][:] = target_value
-
-    return noisy_input, noisy_target
