@@ -3,57 +3,32 @@
 # To Do: Don't hardcode the network depth.
 #        Passing 6 parameters isn't clean.
 #
-
-# External modules.
 import numpy as np
-
-# Modules specific to this program.
 import nonlinearities as nl
 
-
+# Class backpropagation algorithm.
 def backpropagate(z2, z3, z4, A3, A4, target_values):
-    
+
     # Calculate the initial error, using cross entropy.
     error_value = cross_entropy(target_values, z4)
 
-    # Initial backpropagation, from the output towards the previous network stage.
-    d4 = nl.sigmoid_derivative(z4)
-    for i in range(len(d4)):
-        d4[i] = error_value[i] * d4[i]
+    # Initial backpropagation, from the output towards the
+    # previous network stage. Use a different nonlinearity
+    # for the output stage to keep in range [0,1]
+    d4 = error_value * nl.sigmoid_derivative(z4)
 
-    # Backpropagate the error to the input.
-    d3 = backpropagate_onestage(A4, d4, z3)
-    d2 = backpropagate_onestage(A3, d3, z2)
-        
+    # Now backpropagate the error to the input, with RLU nonlinearities.
+    d3 = np.dot(A4.T,d4) * nl.rlu_derivative(z3)
+    d2 = np.dot(A3.T,d3) * nl.rlu_derivative(z2)
+
     return d2, d3, d4
 
-
-def backpropagate_onestage(A, d, z):
-    
-    A = np.transpose(A)
-    d_out = np.dot(A,d)
-    z_derivative = nl.rlu_derivative(z)
-    for i in range(len(d_out)):
-        d_out[i] = d_out[i] * z_derivative[i]
-    return d_out
-
-
+# Measuring a distance between output values and expected output values.
 def cross_entropy(target_values, output_values):
 
-    LARGE_ERROR = 100000
-
-    error_value = np.empty((len(target_values),1,))
-    for i in range(len(output_values)):
-
-        # First, catch any possible infinity cases.
-        if output_values[i] == 0:
-            error_value[i] = LARGE_ERROR
-        elif output_values[i] == 1:
-            error_value[i] = -LARGE_ERROR
-
-        else:
-            # The normal path.
-            error_value[i] = -0.5 * (target_values[i]/output_values[i] - 
-                                    (1-target_values[i])/(1-output_values[i]))
-
-    return error_value
+    # To avoid a divide-by-zero, keep output values away from 0 and 1.
+    # The exact small value chosen (1e-8) is not critical.
+    output_values[output_values == 0] = 1e-8
+    output_values[output_values == 1] = 1-1e-8
+    return -0.5 * (target_values/output_values -
+           (1-target_values)/(1-output_values))

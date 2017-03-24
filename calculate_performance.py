@@ -1,30 +1,54 @@
 # Calculate the performance of the algorithm
 #
-
-# External modules.
 import numpy as np
-
-# Modules specific to this program.
 import feedforward_network as fn
 
-
+# Run the network with fixed values, compare the outputs to
+# expected outputs, and calculate the error rate.
 def calculate_performance(test_input, test_target, A2, b2, A3, b3, A4, b4):
 
-    # Initialize the error.
+    # Initialize the error counting.
     error_count = 0
+    
+    # Size of the data output from the neural network.
+    output_length = test_target.shape[1]
+    
+    # Number of outputs from the neural network.
+    number_of_outputs = test_target.shape[0]
+
+    # The output data is always a single 1 output with the other outputs 0.
+    exact_output = np.identity(output_length);
+
+    # For each possible output, this is the squared error to the actual output.
+    squared_error = np.empty((output_length,))
+
+    # Convert one-hot to integers.
+    listofints = np.arange(output_length)
 
     # Loop through all of the test inputs.
-    for i in range(test_target.shape[0]):
+    for i in range(number_of_outputs):
+
+        # For each of the test input, compute an
+        # output with the present state matrices.
         zout = fn.feedforward_network(test_input[i,:], A2, b2, A3, b3, A4, b4)
 
-        # For each test input, loop through the possible output values.
-        # Set the decision region at 1/2 of the output range.
-        for j in range(test_target.shape[1]):
-            if test_target[i][j] >= 0.5 and zout[2][j] < 0.5:
-                error_count = error_count + 1
-            elif test_target[i][j] < 0.5 and zout[2][j] >= 0.5:
-                error_count = error_count + 1
+        # For each output, comute the sum of squares
+        # against all possible outputs.
+        for j in range(output_length):
+            squared_error[j] = \
+            np.sum(np.square(exact_output[j,:] - zout[2][:]))
+        
+        # The trial output that is minimum distance from the expected output
+        # is selected as the decoded output. Then, convert this to its integer
+        # representation.
+        decoded_number = np.argmin(squared_error)
+        
+        # For example, if decoded_number is 2, then check that the expected
+        # output is equal to [0, 0, 1, 0, 0, ...., 0].
+        # If not then increment the error count.
+        if decoded_number != listofints[test_target[i,:] == 1]:
+            error_count = error_count + 1
 
     # Return the number of errors divided by the total
     # number of opportunities to make an error.
-    return error_count / test_target.shape[0] / test_target.shape[1]
+    return error_count/number_of_outputs
