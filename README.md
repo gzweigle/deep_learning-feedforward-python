@@ -1,4 +1,4 @@
-# dlp_f
+# deep_learning-feedforward-python
 Deep Learning network in Python, Feedforward implementation.
 
 Using as a simple (and fun) application, to get better at Python.
