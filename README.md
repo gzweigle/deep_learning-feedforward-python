@@ -16,6 +16,6 @@ Algorithm details:
 - Configurable minibatch size
 - Configurable gradient descent step size
 
-To Do:
+To do:
 - Some form of regularization
 - Variable size arrays design is too complex
