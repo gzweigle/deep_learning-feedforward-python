@@ -1,52 +1,24 @@
-# Initialize the feedforward network
+# Initialize the network weights and biases.
 #
-# To Do: There are better ways to init the network.
-#        Don't hardcode the hyperparameters.
+# Greg C. Zweigle
 #
 import numpy as np
 
-def init_network(inwidth, outwidth, use_mnist):
+def init_network(layers):
 
-    # A* is in range [-1,1]
-    # b* is in range [-1,1]
+    # This is a simple initialization algorithm:
+    # A consists of random numbers in range [-0.5,0.5]
+    # b consists of random numbers in range [-0.5,0.5]
 
-    # The approach to selecting intermediate dimensions is just something
-    # simple for now (inwidth-1 and outwidth+1).
-    # These and other hyperparameters
-    # can be selected with more sophistication eventually.
+    # The first axis in A and b corresponds to the network layer.
+    # Layer 0 connects to input data.
+    # Layer len(layers) - 1 connects to output data.
 
-    if use_mnist == False:
-
-        # Input dimension:  inwidth
-        # Output dimension: inwidth - 1
-        A2 = 2*np.random.random((inwidth-1,inwidth)) - 1
-        b2 = 2*np.random.random((inwidth-1,)) - 1
-
-        # Input dimension:  inwidth  - 1
-        # Output dimension: outwidth + 1
-        A3 = 2*np.random.random((outwidth+1,inwidth-1)) - 1
-        b3 = 2*np.random.random((outwidth+1,)) - 1
+    # The remain axis in A and b correspond to the network weights and biases
+    # of each layer. Using the max(layers) in order to size the vector to
+    # handle the largest possible width.
     
-        # Input dimension:  outwidth + 1
-        # Output dimension: outwidth
-        A4 = 2*np.random.random((outwidth,outwidth+1)) - 1
-        b4 = 2*np.random.random((outwidth,)) - 1
+    A = np.random.random((len(layers)-1,max(layers),max(layers))) - 0.5
+    b = np.random.random((len(layers)-1,max(layers))) - 0.5
 
-    else:
-
-        # Input dimension:  inwidth
-        # Output dimension: 28*2
-        A2 = 2*np.random.random((28*2,inwidth)) - 1
-        b2 = 2*np.random.random((28*2,)) - 1
-
-        # Input dimension:  28*2
-        # Output dimension: 28
-        A3 = 2*np.random.random((28,28*2)) - 1
-        b3 = 2*np.random.random((28,)) - 1
-    
-        # Input dimension:  28
-        # Output dimension: outwidth
-        A4 = 2*np.random.random((outwidth,28)) - 1
-        b4 = 2*np.random.random((outwidth,)) - 1
-
-    return A2, b2, A3, b3, A4, b4
+    return A, b

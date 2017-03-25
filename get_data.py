@@ -1,17 +1,15 @@
-# Build the input data and the expected values.
+# Build fake input data and the expected values testing.
 #
-# To Do: This is temporary code, for initial testing.
-#        Move test into a unit test framework.
+# by Greg C. Zweigle
 #
-# External modules.
 import numpy as np
 
-# Create matrices of input and output data.
+# This function creates matrices of input and output data.
 # The input data starts with out_data_width rows.
 # Each row is associated with a single output.
-# Then, generate multiple instances of that row, each with noise added.
+# Then, it generate multiple instances of that row, each with noise added.
 # There are multiple instances because multiple input maps to a single result.
-# For example, with handwriting data there would be 100's of noisy
+# For example, with handwriting data there would be many instances of noisy
 # letter Z's that all map to the correct output of detecting the letter Z.
 # For each resulting noisy input value, create a duplicate of the
 # correct output value.
@@ -21,19 +19,21 @@ def get_data():
     train_instances = 40
     test_instances = 40
 
-    # Hard code these for this test data.
-    in_data_width = 8
-    out_data_width = 3
+    # Input and output data widths.
+    # There will be a total of train_instances * out_data_width training
+    # vectors and test_instances * out_data_width test instances.
+    in_data_width = 32
+    out_data_width = 4
 
     # Scale the noise by this factor.
-    # Making this larger makes the noise larger.
-    noise_scale = 1/4
+    # Making this larger makes the noise larger and so makes it more
+    # difficult for the network to determine the underlying structure.
+    noise_scale = 1/8
 
     # The output data is always a single 1 output with the other outputs 0.
     exact_output = np.identity(out_data_width);
 
-    # Build an array of exact input data,
-    # with randomly selected values of 0 or 1.
+    # Build an array of input data, with randomly selected values of 0 or 1.
     exact_input = np.round(np.random.random((out_data_width,in_data_width)))
 
     # Now shift the exact data away from 0 and 1 by the noise scaling.
@@ -46,7 +46,7 @@ def get_data():
 
     # Initialize the (data + noise) arrays and the output value arrays.
     # There are out_data_width rows for reach training instance.
-    # Training inputs/outputs are for, ... training.
+    # Training inputs/outputs are for training.
     # Test inputs/outputs are for computing the error rate
     # on data not used for training.
     train_input  = np.zeros((out_data_width*train_instances,in_data_width))

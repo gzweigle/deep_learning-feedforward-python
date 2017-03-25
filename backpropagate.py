@@ -1,27 +1,32 @@
 # Backpropagation stage
 #
-# To Do: Don't hardcode the network depth.
-#        Passing 6 parameters isn't clean.
+# by Greg C. Zweigle
 #
 import numpy as np
 import nonlinearities as nl
 
-# Class backpropagation algorithm.
-def backpropagate(z2, z3, z4, A3, A4, target_values):
+# Classic backpropagation algorithm.
+def backpropagate(layers, A, z, target_values):
 
+    d = np.empty((len(layers)-1, max(layers)))
+    last_layer = len(layers) - 1
+    
     # Calculate the initial error, using cross entropy.
-    error_value = cross_entropy(target_values, z4)
+    error_value = cross_entropy(target_values, \
+        z[last_layer-1,0:layers[last_layer]])
 
     # Initial backpropagation, from the output towards the
-    # previous network stage. Use a different nonlinearity
+    # previous network stage. Use a sigmoid nonlinearity
     # for the output stage to keep in range [0,1]
-    d4 = error_value * nl.sigmoid_derivative(z4)
+    d[last_layer-1,0:layers[last_layer]] = error_value * \
+        nl.sigmoid_derivative(z[last_layer-1,0:layers[last_layer]])
 
     # Now backpropagate the error to the input, with RLU nonlinearities.
-    d3 = np.dot(A4.T,d4) * nl.rlu_derivative(z3)
-    d2 = np.dot(A3.T,d3) * nl.rlu_derivative(z2)
+    for k in reversed(range(len(layers)-2)):
+        d[k,0:layers[k+1]] = np.dot(A[k+1,0:layers[k+2],0:layers[k+1]].T, \
+        d[k+1,0:layers[k+2]]) * nl.rlu_derivative(z[k,0:layers[k+1]])
 
-    return d2, d3, d4
+    return d
 
 # Measuring a distance between output values and expected output values.
 def cross_entropy(target_values, output_values):
@@ -30,5 +35,7 @@ def cross_entropy(target_values, output_values):
     # The exact small value chosen (1e-8) is not critical.
     output_values[output_values == 0] = 1e-8
     output_values[output_values == 1] = 1-1e-8
+
+    # Calculate and return the cross entropy.
     return -0.5 * (target_values/output_values -
            (1-target_values)/(1-output_values))

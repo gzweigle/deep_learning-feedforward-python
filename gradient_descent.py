@@ -1,33 +1,31 @@
 # Gradient Descent stage
 #
-# To Do: Don't hardcode scale scaling
-#        Don't pass so many values.
+# by Greg C. Zweigle
 #
 import numpy as np
 
 # Update the network matrices based on the backpropagated error values.
 # Use the gradient descent search method.
-# This code needs to be fast.
-def gradient_descent(ina, z2a, z3a, d2a, d3a, d4a, A2, A3, A4, b2, b3, b4,
-    minibatch_size, use_mnist):
+def gradient_descent(ina, layers, z_minibatch, d_minibatch, A, b, \
+                     minibatch_size, step_size):
+            
+    # Input layer.
+    gradient_matrix(A[0,0:layers[1],0:layers[0]], \
+    d_minibatch[0,:,0:layers[1]], ina, step_size)
+    
+    # Hidden layers - update the weights.
+    for k in range(1, len(layers)-1):
+        gradient_matrix(A[k,0:layers[k+1],0:layers[k]], \
+        d_minibatch[k,:,0:layers[k+1]], \
+        z_minibatch[k-1,:,0:layers[k]], step_size)
 
-    # For MNIST data, convergence requires a smaller step size
-    # than for the fake test data.
-    if use_mnist == True:
-        scale = 0.01 / minibatch_size
-    else:
-        scale = 0.1 / minibatch_size
+    # Hidden layers and layers - update the weights.
+    for k in range(len(layers)-1):
+        b[k,0:layers[k+1]] = b[k,0:layers[k+1]] - \
+        step_size * d_minibatch[k,:,0:layers[k+1]].sum(axis=0)
 
-    gradient_matrix(A2, d2a, ina, scale)
-    gradient_matrix(A3, d3a, z2a, scale)
-    gradient_matrix(A4, d4a, z3a, scale)
-
-    b2[:] = b2 - scale * d2a.sum(axis=0)
-    b3[:] = b3 - scale * d3a.sum(axis=0)
-    b4[:] = b4 - scale * d4a.sum(axis=0)
-
-# Average over the batch and then update the network matrices.
-# Separate as a function for readability.
+# The gradient_matrix function averages over the batch and then updates
+# the network matrices.  Separate as a function for readability.
 # As an example, let d = d00 d01 d02   and z = z00 z01 z02 z03 z04
 #                        d10 d11 d12           z10 z11 z12 z13 z14
 #                        d20 d21 d22           z20 z21 z22 z23 z24
@@ -40,7 +38,7 @@ def gradient_descent(ina, z2a, z3a, d2a, d3a, d4a, A2, A3, A4, b2, b3, b4,
 # A10 = d01 * z00 + d11 * z10 + d21 * z20
 # ...
 # A24 = d02 * z04 + d12 * z14 + d22 * z24
-def gradient_matrix(A, d, z, scale):
+def gradient_matrix(A, d, z, step_size):
 
     for j in range(d.shape[0]):
-        A[:] = A - scale * np.outer(d[j,:],z[j,:])
+        A[:] = A - step_size * np.outer(d[j,:],z[j,:])
