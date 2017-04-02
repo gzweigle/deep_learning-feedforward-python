@@ -1,42 +1,28 @@
-# Feedforward network
+# One pass through the network, computing the following at each stage:
+# z = nonlinearity(Ax+b)
 #
 # by Greg C. Zweigle
 #
 import numpy as np
 import nonlinearities as nl
 
-# One pass through the network, computing the following at each stage:
-# nonlinearity(Ax+b)
 def feedforward_network(inval, layers, A, b):
-    
-    # Initialize the outputs from each layer.
-    z = np.empty((len(layers)-1,max(layers)))
-    
-    # Initial layer, including the RLU nonlinearity.
-    z[0,0:layers[1]] = \
-    nl.rlu( \
-    np.add( \
-    np.dot( \
-    A[0,0:layers[1],0:layers[0]],inval), \
-    b[0,0:layers[1]]))
+
+    z = [np.empty((x,)) for x in layers]
+
+    # Treat the input to the network as the output from a fictitious
+    # identity input stage. So, set z[0] equal to the input.
+    # The benefit of doing this is avoiding propagation of input values
+    # separately to the gradient descent stage.  The downside of doing
+    # this is that the z array indices are one larger than the backpropagation
+    # (d) array indices.
+    z[0] = inval
 
     # Hidden layers use the RLU nonlinearity.
-    for k in range(1, len(layers)-1):
-        z[k,0:layers[k+1]] = \
-        nl.rlu( \
-        np.add( \
-        np.dot( \
-        A[k,0:layers[k+1],0:layers[k]], z[k-1,0:layers[k]]), \
-        b[k,0:layers[k+1]]))
-    
-    # Output stage uses the sigmoid as it keeps values in the range [0,1]
-    last_layer = len(layers) - 1
-    z[last_layer-1,0:layers[last_layer]] = \
-    nl.sigmoid( \
-    np.add( \
-    np.dot( \
-    A[last_layer-1,0:layers[last_layer],0:layers[last_layer-1]], \
-    z[last_layer-2,0:layers[last_layer-1]]), \
-    b[last_layer-1,0:layers[last_layer]]))
-        
+    for k in range(0, len(A)-1):
+        z[k+1] = nl.rlu(A[k].dot(z[k]) + b[k])
+
+    # Output stage uses the sigmoid as it keeps outputs in the range [0,1]
+    z[len(A)] = nl.sigmoid(A[len(A)-1].dot(z[len(A)-1]) + b[len(A)-1])
+
     return z

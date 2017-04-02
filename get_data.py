@@ -1,9 +1,3 @@
-# Build fake input data and the expected values testing.
-#
-# by Greg C. Zweigle
-#
-import numpy as np
-
 # This function creates matrices of input and output data.
 # The input data starts with out_data_width rows.
 # Each row is associated with a single output.
@@ -13,6 +7,11 @@ import numpy as np
 # letter Z's that all map to the correct output of detecting the letter Z.
 # For each resulting noisy input value, create a duplicate of the
 # correct output value.
+#
+# by Greg C. Zweigle
+#
+import numpy as np
+
 def get_data():
 
     # Number of inputs for each type of output.
@@ -22,7 +21,7 @@ def get_data():
     # Input and output data widths.
     # There will be a total of train_instances * out_data_width training
     # vectors and test_instances * out_data_width test instances.
-    in_data_width = 32
+    in_data_width = 8
     out_data_width = 4
 
     # Scale the noise by this factor.
@@ -46,26 +45,25 @@ def get_data():
 
     # Initialize the (data + noise) arrays and the output value arrays.
     # There are out_data_width rows for reach training instance.
-    # Training inputs/outputs are for training.
-    # Test inputs/outputs are for computing the error rate
-    # on data not used for training.
-    train_input  = np.zeros((out_data_width*train_instances,in_data_width))
-    train_output = np.zeros((out_data_width*train_instances,out_data_width))
-    test_input   = np.zeros((out_data_width*train_instances,in_data_width))
-    test_output  = np.zeros((out_data_width*train_instances,out_data_width))
+    # Training inputs/outputs are for training.  Test inputs/outputs are
+    # for computing the error rate on data not used for training.
+    train_input  = np.zeros((out_data_width*train_instances, in_data_width))
+    train_output = np.zeros((out_data_width*train_instances, out_data_width))
+    test_input   = np.zeros((out_data_width*train_instances, in_data_width))
+    test_output  = np.zeros((out_data_width*train_instances, out_data_width))
 
     # Build lots of instances of each exact input data, each with noise added.
     # For each instance, also duplicate its associated output.
     for which_output in range(out_data_width):
 
-        build_noisy_data_instances( \
-            train_instances, exact_input[which_output,:], \
-            train_input, train_output, exact_output[which_output,:], \
+        build_noisy_data_instances(
+            train_instances, exact_input[which_output,:],
+            train_input, train_output, exact_output[which_output,:],
             which_output, noise_scale)
 
-        build_noisy_data_instances( \
-            test_instances, exact_input[which_output,:], \
-            test_input, test_output, exact_output[which_output,:], \
+        build_noisy_data_instances(
+            test_instances, exact_input[which_output,:],
+            test_input, test_output, exact_output[which_output,:],
             which_output, noise_scale)
 
     # Each row of train_input (test_input) holds the input data for a given
@@ -78,12 +76,12 @@ def get_data():
 # Utility function to eliminate duplicated code.
 # Construct input data with noise added.
 # For each input, replicate the associated output.
-def build_noisy_data_instances(num_instances, exact_input, noisy_input, \
-    noisy_output, output_value, which_output, noise_scale):
+def build_noisy_data_instances(num_instances, exact_input, noisy_input,
+    replicated_output, output_value, which_output, noise_scale):
 
     data_width = exact_input.shape[0]
 
     for i in range(num_instances):
-        noisy_input[i + which_output * num_instances,:] =  \
-            (exact_input + (2*np.random.random((1,data_width))-1)*noise_scale)
-        noisy_output[i + which_output * num_instances,:] = output_value
+        noisy_input[i + which_output * num_instances,:] = (
+            exact_input + (2*np.random.random((1,data_width))-1)*noise_scale)
+        replicated_output[i + which_output * num_instances,:] = output_value

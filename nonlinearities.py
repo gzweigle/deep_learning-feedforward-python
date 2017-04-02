@@ -11,8 +11,6 @@ import numpy as np
 
 def rlu(nonlin_in):
 
-    # Could have changed nonlin_in in place but then had to construct
-    # an array at the calling location. So, for performance its a don't care.
     outval = nonlin_in
     outval[outval < 0] = 0.1*outval[outval < 0]
     return outval
