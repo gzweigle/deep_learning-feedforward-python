@@ -11,7 +11,7 @@ The code was written and tested with Python 3.6.
 
 All parameters are located in the first few lines of deep_learning-feedforward-python.py. Here is a description of the simulation parameters:
 
-### use_mnits
+### use_mnist
 
 If use_mnist == False, the code generates fake training and test data. This is useful for quick unit testing. Else, it reads MNIST data. Default is True.
 
@@ -45,17 +45,17 @@ Set step_size to the scaling applied when updating the weights for gradient desc
 
 Set layers to the width of hidden layers. There is no need to include the width of input or output layers. Those are handled automatically. Default is (84, 20).
 
-## Algorithm details
+## Algorithm
 
-- Straightforward, textbook, implementation of a feed-forward network.
+- Straightforward, textbook implementation of a feed-forward network.
 - RLU nonlinearity for hidden layers.
 - Sigmoid nonlinearity for output layer.
 - Cross entropy cost function.
 
-## Status update
+## Status
 
 The code is stable. I would like to add some form of regularization as well as additional details to the performance plots. Also, as I continue to improve my Python skills elsewhere, I may come back and refactor some sections.
 
-## Code history
+## History
 
 The initial commit(s) did not utilize Python well and also hardcoded the network depth. After reading "Learning Python, 5th Ed." by Mark Lutz, the Python code got better. Subsequently, I tried to make the network depth configurable by adding an extra dimension to the ndarrays. However, the code became very complicated and so I switched to lists of ndarrays. This code is simpler.
