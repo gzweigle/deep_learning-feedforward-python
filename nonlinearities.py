@@ -1,30 +1,34 @@
-# Various nonlinearities
-#
-# For RLU and the derivative of RLU, instead of zeroing values less than
-# zero, scale them by a small number.  This seems to help convergence
-# properties of the gradient descent. It gives a little bit of signal
-# to work with.
+"""Various nonlinearities."""
 #
 # by Greg C. Zweigle
 #
 import numpy as np
 
-def rlu(nonlin_in):
-
-    outval = nonlin_in
-    outval[outval < 0] = 0.1*outval[outval < 0]
+def rlu(nonlin_in, dropout):
+    """ Return the RLU nonlinearity output, zeroing the dropped outputs."""
+    outval = nonlin_in * dropout
+    outval[nonlin_in < 0] = 0
     return outval
 
-def rlu_derivative(nonlin_in):
-
-    outval = np.ones(nonlin_in.shape) * 0.1
-    outval[nonlin_in >= 0] = 1
+def rlu_derivative(nonlin_in, dropout):
+    """ Return the RLU derivative output, zeroing the dropped outputs."""
+    outval = dropout
+    outval[nonlin_in < 0] = 0
     return outval
 
 def sigmoid(nonlin_in):
+    """ Return the sigmoid nonlinearity output."""
+    return 1 / (1 + np.exp(-nonlin_in))
 
-    return 1 / (1+np.exp(-nonlin_in))
+def softmax(nonlin_in):
+    """ Return the softmax nonlinearity output."""
+    nonlin_out = np.empty(nonlin_in.shape)
+    # Avoid big numbers by rereferencing to a maximum value of zero.
+    # This also makes the denominator >= 1, to avoid underflow.
+    nonlin_in_max = nonlin_in.max(axis=0)
+    for k in range(nonlin_in.shape[1]):
 
-def sigmoid_derivative(nonlin_in):
-    
-    return nonlin_in * (1-nonlin_in)
+        nonlin_out[:, k] = (np.exp(nonlin_in[:, k] - nonlin_in_max[k]) /
+                            np.sum(np.exp(nonlin_in[:, k] - nonlin_in_max[k])))
+
+    return nonlin_out

@@ -1,19 +1,19 @@
-# deep_learning-feedforward-python
-Deep Learning network in Python, Feedforward implementation.
+# deep_learning_feedforward
+Deep Learning neural network, Feedforward implementation.
 
-## Background
+## Purpose
 
-I chose this learning network as a simple (and fun) target application while learning Python. The repository name includes the language name because the intent of it is to get better at Python.
+I chose this learning network as a simple (and fun) target application while learning Python. I'm learning and the network is learning.
 
 ## Usage
 
-The code was written and tested with Python 3.6.
+The top level is deep_learning_feedforward.py. All setup parameters are located in the Parameters class and initialized in this top level code.
 
-All parameters are located in the first few lines of deep_learning-feedforward-python.py. Here is a description of the simulation parameters:
+Here is a brief description of the parameters:
 
 ### use_mnist
 
-If use_mnist == False, the code generates fake training and test data. This is useful for quick unit testing. Else, it reads MNIST data. Default is True.
+If use_mnist == False, the code generates fake training and test data. This is useful for quick testing. Else, it reads MNIST data. Default is True.
 
 MNIST data is not included in the repository. Requirements of the MNIST data:
 - Expects MNIST data is in a local directory called mnist_data/
@@ -23,7 +23,7 @@ MNIST data is not included in the repository. Requirements of the MNIST data:
   * mnist_data/t10k-images.idx3-ubyte are the testing images.
   * mnist_data/train-labels.idx1-ubyte are the training targets.
   * mnist_data/t10k-labels.idx1-ubyte are the testing targets.
-- To change names or directory, edit get_mnist.py.
+- To change the file names or location, edit get_mnist.py.
 
 ### new_seed
 
@@ -39,23 +39,35 @@ Set minibatch_size to the number of training inputs per gradient descent. The nu
 
 ### step_size
 
-Set step_size to the scaling applied when updating the weights for gradient descent. Default for MNIST is 0.01 / minibatch_size.
+Set step_size to the scaling applied when updating the weights for gradient descent. Default is 0.1.
+
+### dropout_probability
+
+During training, at each minibatch iteration a random subset of nodes is selected for removal. This parameter sets the probability of removal. During testing, all nodes are kept but weighted by one minus this parameter. Default is 0.5
+
+### output_nonlin_type
+
+If output_nonlin_type == sigmoid then the output layer is a sigmoid function and the cost metric is cross-entropy. If output_nonlin_type == softmax then the output layer is a softmax function and the cost metric is log likelihood. The output nonlinearity and cost metric are coupled to ensure that the first backpropagation delta reduces to subtraction between the network output and target values. Default is softmax.
 
 ### layers (tuple)
 
-Set layers to the width of hidden layers. There is no need to include the width of input or output layers. Those are handled automatically. Default is (84, 20).
+Set layers to the width of each hidden layer. This is the number of neurons in that layer. There is no need to include the width of input or output layers. Those are set automatically based on the MNIST data sizes. Default is (84, 20).
 
 ## Algorithm
 
-- Straightforward, textbook implementation of a feed-forward network.
+- Straightforward, textbook implementation of a feedforward neural network.
 - RLU nonlinearity for hidden layers.
-- Sigmoid nonlinearity for output layer.
-- Cross entropy cost function.
+- Selectable sigmoid or softmax nonlinearity for output layer.
+- Gradient descent with minibatches based on random subsets of the input data.
+- Displays error performance on training and test data, along with training time, after each training iteration.
+- Displays a graph of error performance at completion of all training iterations.
 
 ## Status
 
-The code is stable. I would like to add some form of regularization as well as additional details to the performance plots. Also, as I continue to improve my Python skills elsewhere, I may come back and refactor some sections.
+The code is stable and seems to work ok, but is not 100% tested.
+
+Written and tested with Python 3.6.
 
 ## History
 
-The initial commit(s) did not utilize Python well and also hardcoded the network depth. After reading "Learning Python, 5th Ed." by Mark Lutz, the Python code got better. Subsequently, I tried to make the network depth configurable by adding an extra dimension to the ndarrays. However, the code became very complicated and so I switched to lists of ndarrays. This code is simpler.
+The initial commit(s) did not utilize Python well and also hardcoded the network depth. After reading "Learning Python, 5th Ed." by Mark Lutz, the Python code got better (I hope!). Subsequently, I tried to make the network depth configurable by adding an extra dimension to the ndarrays. However, the code became very complicated and so I switched to lists of ndarrays. This code is simpler. The recent commit changed to block matrix operations in an attempt to speed things up.
